@@ -30,7 +30,7 @@
 param(
     [Parameter(ParameterSetName = 'UNCParameterSet', Mandatory = $false)]
     [ValidatePattern('^\\\\[a-z0-9`]{3,24}(.file.core.windows.net|.file.core.chinacloudapi.cn|.file.core.cloudapi.de|.file.usgovcloudapi.net)\\([a-z0-9](?:[a-z0-9]|(\-(?!\-))){1,61}[a-z0-9])(\\[^\x00-\x1f`"\\/:|<>*?\uE000-\uF8FF]{1,255})*$')]
-    $UNCPath = $null,
+    $UNCPath = '\\nnpolarshared.file.core.windows.net\snow-images',
     [Parameter(ParameterSetName = 'StorageAccountParameterSet', Mandatory = $false)]
     [ValidatePattern('^[a-z0-9`]{3,24}$')]
     $StorageAccountName = $null,
@@ -356,16 +356,16 @@ function ValidateLmCompatibilityLevel {
     $Result = Get-ItemProperty -path $RegKeyPath  -Name $valueName -ErrorAction SilentlyContinue
 
     if ($Result -eq $null) {
-        Write-Log -level success "`n[OK]: HKLM:SYSTEM\CurrentControlSet\Control\Lsa|LmCompatibilityLevel IS NOT set, by default it should be 3" 
+        Write-Log -level success "`n[OK]: HKLM:SYSTEM\CurrentControlSet\Control\Lsa|LmCompatibilityLevel IS NOT set, by default it should be 3 (or greater)" 
 
     }
     else {
 
-        if ( $result.LmCompatibilityLevel -eq 3 ) {
-            Write-Log -level success "`n[OK]: HKLM:SYSTEM\CurrentControlSet\Control\Lsa|LmCompatibilityLevel is set to default value 3" 
+        if ( $result.LmCompatibilityLevel -ge 3 ) {
+            Write-Log -level success "`n[OK]: HKLM:SYSTEM\CurrentControlSet\Control\Lsa|LmCompatibilityLevel is set to default value 3 (or greater)" 
         }
         else {
-            Write-Log -level error "`n[ERROR]: HKLM:SYSTEM\CurrentControlSet\Control\Lsa|LmCompatibilityLevel IS NOT set to default value 3 and current value is $($result.LmCompatibilityLevel), it will cause mouting share to fail." 
+            Write-Log -level error "`n[ERROR]: HKLM:SYSTEM\CurrentControlSet\Control\Lsa|LmCompatibilityLevel IS NOT set to default value 3 (or greater) and current value is $($result.LmCompatibilityLevel), it will cause mouting share to fail." 
             $Script:ValidationPass = $false
         }
 
@@ -1508,9 +1508,3 @@ else {
     Write-Log -level warning "==========================================[END]==============================================="
 
 }
-
-
-
-
-
-
